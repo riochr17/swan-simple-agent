@@ -24,6 +24,7 @@
   },
   "swan-files": [
     "package.json",
+    "package-lock.json",
     "dist"
   ]
 }
