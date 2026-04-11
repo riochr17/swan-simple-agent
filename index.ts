@@ -2,12 +2,13 @@ require('dotenv').config();
 import { AgentTool, OpenAILLM, startAgentServer, startAgentTelegram, TerminationError } from "@ssww.one/framework";
 
 export async function agent(at: AgentTool) {
-  await at.prepareKnowledge(`Your name is ${process.env.NAME || 'ABC Agent'}.`);
+  const name = process.env.NAME || 'ABC Agent';
+  await at.prepareKnowledge(`Your name is ${name}.`);
   await at.prepareKnowledge(process.env.AGENT_BRIEF || 'No brief');
   await at.prepareKnowledge(`Current date and time: ${new Date().toISOString()}`);
 
   // Initial greetings
-  at.print('Welcome to our Laundry, may I help you?', true);
+  at.print(`Hi there my name is ${name}, may I help you?`, true);
   
   // Main loop
   try {
