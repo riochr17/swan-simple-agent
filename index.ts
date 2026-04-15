@@ -1,5 +1,5 @@
 require('dotenv').config();
-import { AgentTool, OpenAILLM, startAgentServer, startAgentTelegram, TerminationError } from "@ssww.one/framework";
+import { AgentTool, OpenAILLM, startAgentServer, startAgentTelegram, startAgentWAHA, TerminationError, TerminationTimeout } from "@ssww.one/framework";
 
 export async function agent(at: AgentTool) {
   const name = process.env.NAME || 'ABC Agent';
@@ -8,7 +8,7 @@ export async function agent(at: AgentTool) {
   await at.prepareKnowledge(`Current date and time: ${new Date().toISOString()}`);
 
   // Initial greetings
-  at.print(`Hi there my name is ${name}, may I help you?`, true);
+  at.print(await at.askLLM(`Give short greetings to user based on given context. Your greetings must be simple`), true);
   
   // Main loop
   try {
@@ -20,9 +20,14 @@ export async function agent(at: AgentTool) {
       );
       at.print('', true);
     }
-  } catch (err) {
+  } catch (err: any) {
     if (err instanceof TerminationError) {
       at.exit(`Conversation ended`);
+    }
+    else if (err instanceof TerminationTimeout) {
+      at.exit(`Conversation ended`);
+    } else {
+      at.print(err?.message ?? '5XX: Agent cannot process this request', true);
     }
   }
 }
@@ -33,5 +38,8 @@ startAgentServer(agent, {
   timeout: 120 * 1000
 });
 startAgentTelegram(agent, {
+  llm: new OpenAILLM()
+});
+startAgentWAHA(agent, {
   llm: new OpenAILLM()
 });
