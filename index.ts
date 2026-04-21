@@ -13,6 +13,9 @@ export async function agent(at: AgentTool) {
   // Main loop
   await loop(async () => {
     const instruction = await at.waitForUserInstruction();
+    if (at.source.type === 'whatsapp-waha' && at.is_last_waha_message_from_me) {
+      return;
+    }
     await at.streamLLM(
       `User request: "${instruction}". Respond user request based on given knowledge.`,
       (s: string) => at.print(s)
